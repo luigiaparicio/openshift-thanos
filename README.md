@@ -1,6 +1,6 @@
 # openshift-thanos
 
-
+Based on: https://www.openshift.com/blog/federated-prometheus-with-thanos-receive
 
 ## Thanos Store Gateway
 
@@ -23,7 +23,18 @@
     
     oc --context east2 -n thanos adm policy add-cluster-role-to-user system:auth-delegator -z thanos-receive
 
+    oc --context east2 -n thanos create -f thanos-receive.yaml
 
+    oc --context east2 -n thanos get pods -l "app=thanos-receive"
+
+    oc --context east2 -n thanos create route reencrypt thanos-receive --service=thanos-receive --port=web-proxy --insecure-policy=Redirect
+
+## Create ServiceAccounts for sending metrics
+
+    oc --context east2 -n thanos create serviceaccount west2-metrics
+    oc --context east2 -n thanos adm policy add-role-to-user view -z west2-metrics
+    oc --context east2 -n thanos create serviceaccount east1-metrics
+    oc --context east2 -n thanos adm policy add-role-to-user view -z east1-metrics
 
 
     
